@@ -248,7 +248,17 @@ int
 main(int argc, char **argv)
 {
 	int i, fd, pid, freq_ctl;
+	float freq_mult = 1;
 	char pagemap_fn[64];
+	
+	for(i = 0; i < argc; ++i) {
+		printf("argv[%d]: %s\n", i, argv[i]);
+	}
+	if (argc > 1) {
+		freq_mult = (float) strtof(argv[2], (char **)NULL) / 100 ;
+	}
+	
+	printf("Frequency multiplier %f", freq_mult);
 
 	// Catch all signals possible - it is vital we kill the DMA engine
 	// on process exit!
@@ -262,8 +272,8 @@ main(int argc, char **argv)
 
 	// Calculate the frequency control word
 	// The fractional part is stored in the lower 12 bits
-	freq_ctl = ((float)(PLLFREQ / CARRIERFREQ)) * ( 1 << 12 );
-		
+	freq_ctl = (freq_mult * (float)(PLLFREQ / CARRIERFREQ)) * ( 1 << 12 );
+	//printf("freq_ctl : %f", freq_ctl);	
 	dma_reg = map_peripheral(DMA_BASE, DMA_LEN);
 	pwm_reg = map_peripheral(PWM_BASE, PWM_LEN);
 	clk_reg = map_peripheral(CLK_BASE, CLK_LEN);
